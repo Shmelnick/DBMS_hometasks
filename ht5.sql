@@ -12,4 +12,4 @@ SELECT * from h_rec;
 $$
 LANGUAGE 'sql' VOLATILE;
 
-SELECT emp_hierarchy(6) AS res;
+SELECT * from emp_hierarchy(6);

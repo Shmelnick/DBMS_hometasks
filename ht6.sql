@@ -1,4 +1,5 @@
-﻿CREATE OR REPLACE FUNCTION emps_amt(d integer)
+﻿--Количество сотрудников в отделе
+CREATE OR REPLACE FUNCTION emps_amt(d integer)
 RETURNS bigint AS
 $$
 SELECT COUNT(*) FROM emps WHERE dept = d;
