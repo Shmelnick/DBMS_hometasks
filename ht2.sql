@@ -1,4 +1,4 @@
-﻿DROP FUNCTION change_dept(integer,integer);
+﻿--Добавлена процедура change_chief(сотр, нов.шеф)
 
 --Результат - сотрудники в подчинении у данного сотрудника
 CREATE OR REPLACE FUNCTION find_str(root_id int)
@@ -34,7 +34,36 @@ END;
 $$
 LANGUAGE 'plpgsql' VOLATILE;
 
---change_dept(номер сотрудника, номер отдела)
-SELECT * from change_dept(665, 787);
+--сотрудник emp_id переходит в подчинение к new_chief
+CREATE OR REPLACE FUNCTION change_chief(emp_id int, new_chief int) 
+RETURNS varchar(80) AS
+$$
+DECLARE
+var varchar(80);
+new_dept int;
+rec record;
+cur CURSOR for SELECT dept FROM emps WHERE id = new_chief;
+BEGIN
+IF (select count(*) from emps where id = emp_id)=0
+	THEN var = 'Неуспех: Нет сотрудника с id = ' || emp_id; 
+ELSIF (select count(*) from emps where emps.id = new_chief)=0
+	THEN var = 'Неуспех: Нет сотрудника с id = ' || new_chief;
+ELSE
+	FOR rec IN cur
+		LOOP
+		new_dept = rec.dept;
+		END LOOP;
+	UPDATE emps SET chief = new_chief WHERE emps.id = emp_id;
+	UPDATE emps SET dept = new_dept WHERE id IN (SELECT id FROM find_str(emp_id));
+	var = 'Успех';
+END IF;
+RETURN var;
+END;
+$$
+LANGUAGE 'plpgsql' VOLATILE;
 
---SELECT * from emps
+--change_dept(номер сотрудника, номер отдела)
+--change_chief(номер сотрудника, номер нового начальника)
+
+--SELECT * from emps;
+SELECT * from change_chief(2, 12);
